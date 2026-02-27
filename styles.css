@@ -10,6 +10,16 @@ body {
     line-height: 1.45;
 }
 
+.title {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 5em;        /* exakt Schriftgröße */
+    width: auto;
+}
+
 h1 {
     font-size: 1.6rem;
     margin: 0 0 10px;

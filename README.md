@@ -1,4 +1,4 @@
-# Regex ReDoS Checker
+# Regex ReDoS Checker <img src="PoweredByKI.png" alt="Powered by KI" height="100" align="middle">
 
 Static in-browser utility to quickly check JavaScript regular expressions for potential catastrophic backtracking (ReDoS risk).
 
