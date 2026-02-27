@@ -32,5 +32,11 @@ function analyze() {
         showResult("error", "Invalid regex: " + e.message);
     }
 }
+patternEl.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        btn.click();
+    }
+});
 
 btn.addEventListener("click", analyze);
