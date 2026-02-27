@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Regex ReDoS Checker</title>
+  <meta name="description" content="Static in-browser check for potential catastrophic backtracking (ReDoS) in JavaScript regex patterns." />
+
+  <!-- Heuristic checker (static, no backend) -->
+  <script src="https://cdn.jsdelivr.net/npm/safe-regex@2.1.1/index.min.js"></script>
+
+  <style>
+    :root { color-scheme: light; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; max-width: 860px; margin: 56px auto; padding: 0 18px; line-height: 1.45; }
+    h1 { font-size: 1.6rem; margin: 0 0 10px; }
+    p { margin: 0 0 18px; color: #444; }
+    label { display: block; font-weight: 600; margin-top: 14px; }
+    textarea, input {
+      width: 100%; box-sizing: border-box;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: 14px;
+      padding: 10px 12px; margin-top: 8px;
+      border: 1px solid #cfcfcf; border-radius: 8px;
+      background: #fff;
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    .row { display: grid; grid-template-columns: 1fr 180px; gap: 12px; align-items: end; }
+    button {
+      padding: 10px 14px; border-radius: 8px; border: 1px solid #111; background: #111; color: #fff;
+      font-weight: 600; cursor: pointer;
+    }
+    button:hover { opacity: .92; }
+    .hint { font-size: 12px; color: #666; margin-top: 6px; }
+    .result { margin-top: 18px; padding: 12px 14px; border-radius: 10px; font-weight: 700; display: none; }
+    .safe { background: #e9f7ee; border: 1px solid #2e7d32; color: #1b5e20; }
+    .unsafe { background: #fdecea; border: 1px solid #c62828; color: #7f1d1d; }
+    .error { background: #fff6db; border: 1px solid #b45309; color: #7c2d12; }
+    footer { margin-top: 40px; font-size: 12px; color: #666; }
+    code { background: #f3f3f3; padding: 2px 6px; border-radius: 6px; }
+  </style>
+</head>
+
+<body>
+  <h1>Regex ReDoS Checker</h1>
+  <p>Paste a JavaScript regex pattern and get a quick heuristic check for potential catastrophic backtracking (ReDoS).</p>
+
+  <div class="row">
+    <div>
+      <label for="pattern">Regex pattern (no slashes)</label>
+      <textarea id="pattern" placeholder="Example: (a+)+$"></textarea>
+      <div class="hint">Tip: Press <code>Ctrl</code>+<code>Enter</code> to analyze.</div>
+    </div>
+
+    <div>
+      <label for="flags">Flags (optional)</label>
+      <input id="flags" placeholder="e.g. imgu" />
+      <button id="analyze" type="button">Analyze</button>
+    </div>
+  </div>
+
+  <div id="result" class="result"></div>
+
+  <footer>
+    Uses <code>safe-regex</code> heuristic detection in your browser (no backend). Results are best-effort and not a formal security guarantee.
+  </footer>
+
+  <script>
+    const patternEl = document.getElementById("pattern");
+    const flagsEl = document.getElementById("flags");
+    const resultEl = document.getElementById("result");
+    const btn = document.getElementById("analyze");
+
+    function showResult(kind, msg) {
+      resultEl.className = `result ${kind}`;
+      resultEl.textContent = msg;
+      resultEl.style.display = "block";
+    }
+
+    function analyze() {
+      const pattern = patternEl.value.trim();
+      const flags = flagsEl.value.trim();
+
+      if (!pattern) {
+        showResult("error", "Please enter a regex pattern.");
+        return;
+      }
+
+      try {
+        // Validate syntax first (also validates flags)
+        new RegExp(pattern, flags);
+
+        // Heuristic: catastrophic backtracking risk
+        const ok = safeRegex(pattern);
+
+        if (ok) {
+          showResult("safe", "SAFE: no catastrophic backtracking pattern detected.");
+        } else {
+          showResult("unsafe", "POTENTIALLY VULNERABLE: catastrophic backtracking risk detected (ReDoS).");
+        }
+      } catch (e) {
+        showResult("error", `Invalid regex: ${e.message}`);
+      }
+    }
+
+    btn.addEventListener("click", analyze);
+
+    // Ctrl+Enter to analyze
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) analyze();
+    });
+  </script>
+</body>
+</html>
