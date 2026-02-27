@@ -14,7 +14,7 @@ It runs entirely in the browser:
 
 ## Usage
 
-1. Open the page
+1. Open the page https://huluvu424242.github.io/regex-redos-checker/
 2. Paste a regex pattern (without slashes)
 3. Optionally provide flags (e.g. `i`, `m`, `u`)
 4. Click **Analyze**
